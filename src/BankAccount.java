@@ -1,17 +1,30 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.Random;
 
 public class BankAccount {
     private String ownerName;
     private int balanceAcc;
     private LocalDateTime openDate;
     private boolean gonnaBlocked;
+    private String number;
 
     public BankAccount(String ownerName) {
         this.ownerName = ownerName;
         this.balanceAcc = 0;
+        this.number = generateAccNum();
         this.openDate = LocalDateTime.now();
         this.gonnaBlocked = false;
+    }
+
+    private String generateAccNum() {
+        Random rnd = new Random();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 8; i++) {
+            sb.append(rnd.nextInt(10));
+        }
+        return sb.toString();
     }
 
     public boolean deposit(int amount) {
@@ -35,12 +48,16 @@ public class BankAccount {
     }
 
     // Adding Getters for testing results
+    public String getOwnerName() {
+        return ownerName;
+    }
+
     public int getBalanceAcc() {
         return balanceAcc;
     }
 
-    public String getOwnerName() {
-        return ownerName;
+    public String getNumber() {
+        return number;
     }
 
     public String getOpenDate() {
@@ -48,7 +65,7 @@ public class BankAccount {
         return openDate.format(formatter);
     }
 
-    public boolean isGonnaBlocked(boolean block) {
+    public boolean isGonnaBlocked() {
         return gonnaBlocked;
     }
 
@@ -57,30 +74,45 @@ public class BankAccount {
         this.gonnaBlocked = gonnaBlocked;
     }
 
+    public String toString() {
+        return "[YourPersonalBankAccount]" +
+                "\nAccount number: " + number +
+                "\nOwner: " + ownerName +
+                "\nBalance: " + balanceAcc +
+                "\nDate of Register: " + getOpenDate() +
+                "\nBlocking status: " + gonnaBlocked;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof BankAccount)) return false;
+        BankAccount oth = (BankAccount) obj;
+        return Objects.equals(this.number, oth.number);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(number);
+    }
+
     public static void main(String[] args) {
         BankAccount ba1 = new BankAccount("Klimas");
         BankAccount ba2 = new BankAccount("Penek");
 
-        System.out.println(ba1.getOwnerName());
-        System.out.println(ba1.getOpenDate());
-        System.out.println(ba1.isGonnaBlocked(false));
-        System.out.println("Klimas zakinul sebe 2 kosars: " + ba1.deposit(2000));
-        System.out.println("Teper mozhno s kentamy v kalyanku, cause balance: " + ba1.getBalanceAcc()+ "\n");
+        System.out.println(ba1 + "\n-----");
+        System.out.println(ba2);
 
-        System.out.println("Klimas snyal kosar na pokupku tachki: " + ba1.withdraw(1000));
-        System.out.println("Poetomu Klimas pereshel na vodu i khleb, balance till month ending: " + ba1.getBalanceAcc()+ "\n");
+        System.out.println("\nHashCode ba1: " + ba1.hashCode());
+        System.out.println("HashCode ba2: " + ba2.hashCode());
 
-        System.out.println("Penek zanyal u Klimasa pyatihat na remont chetirki: " + ba1.transfer(ba2, 500));
-        System.out.println("Penek balance: " + ba2.getBalanceAcc());
-        System.out.println("Klimas balance: " + ba1.getBalanceAcc() + "\n");
+        System.out.println("Are the numbers equal? - " + ba1.equals(ba2));
+        if(ba1.equals(ba2)) {
+            System.out.println("Are the HashCodes equal? - " + (ba1.hashCode() == ba2.hashCode()));
+        } else {
+            System.out.println("Numbers are different, also as hashcodes - it's okay");
+        }
 
-        System.out.println("Penek poprosil eshe dokinut kosar: " + ba1.transfer(ba2, 1000));
-        System.out.println("Penek balance: " + ba2.getBalanceAcc());
-        System.out.println("Klimas balance: " + ba1.getBalanceAcc());
-        System.out.println("Sorry brat sam na meli\n");
-
-        ba2.setGonnaBlocked(true);
-        System.out.println("*Scheta Penka has banned*");
-        System.out.println("Teper vozmozhnost namilit chetirku: " + ba2.deposit(1000));
+        System.out.println("Is number equal yourself? - " + ba1.equals(ba1));
     }
 }
